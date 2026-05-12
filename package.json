@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "start": "node dist/server.cjs",
-    "build": "vite build && tsc server.ts --esModuleInterop --outDir dist", 
+"build": "vite build && tsc server.ts --esModuleInterop --outDir dist --skipLibCheck --allowJs --noEmitOnError false", 
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
