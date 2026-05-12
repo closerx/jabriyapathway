@@ -1,2 +1,2 @@
-import app from './server.ts'; // نقطة واحدة فقط لأن الملفين بجانب بعضهما
+import app from './dist/server.js'; 
 export default app;
