@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Nurse or medical staff profile",
+      "type": "object",
+      "properties": {
+        "nameAr": { "type": "string" },
+        "nameEn": { "type": "string" },
+        "staffId": { "type": "string" },
+        "specialization": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["nameAr", "nameEn", "staffId"]
+    },
+    "Patient": {
+      "title": "Patient",
+      "description": "Patient record",
+      "type": "object",
+      "properties": {
+        "idNumber": { "type": "string" },
+        "gender": { "type": "string" },
+        "indicators": { "type": "object" },
+        "ar": { "type": "object" },
+        "en": { "type": "object" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["idNumber", "ar", "en"]
+    },
+    "Goal": {
+      "title": "Goal",
+      "description": "Monthly target for a specific indicator",
+      "type": "object",
+      "properties": {
+        "target": { "type": "number" },
+        "remaining": { "type": "number" },
+        "colorGroup": { "type": "string" },
+        "id": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["target", "remaining", "id"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Profiles of the medical staff"
+    },
+    "/patients/{patientId}": {
+      "schema": "Patient",
+      "description": "Collection of patient records"
+    },
+    "/goals/{goalId}": {
+      "schema": "Goal",
+      "description": "Monthly goals targets"
+    }
+  }
+}

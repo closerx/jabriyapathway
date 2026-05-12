@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      // MANDATORY: As per security guidelines, write operations require email verification.
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- User Rules ---
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['nameAr', 'nameEn', 'staffId', 'phone', 'email', 'specialization', 'updatedAt', 'verificationCode', 'isEmailVerified']);
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['nameAr', 'nameEn', 'staffId', 'phone']) &&
+             data.nameAr is string && data.nameAr.size() <= 100 &&
+             data.nameEn is string && data.nameEn.size() <= 100 &&
+             data.staffId is string &&
+             data.phone is string &&
+             (data.keys().hasAll(['email']) ? data.email is string : true) &&
+             (data.keys().hasAll(['verificationCode']) ? data.verificationCode is string : true) &&
+             (data.keys().hasAll(['isEmailVerified']) ? data.isEmailVerified is bool : true) &&
+             (data.keys().hasAll(['specialization']) ? data.specialization is string : true) &&
+             (data.keys().hasAll(['updatedAt']) ? true : true);
+    }
+
+    // --- Patient Rules ---
+    match /patients/{patientId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidPatient(incoming()) && isValidId(patientId);
+      allow update: if isSignedIn() && isValidPatient(incoming());
+      allow delete: if isSignedIn(); 
+    }
+
+    function isValidPatient(data) {
+      return data.keys().hasAll(['idNumber', 'gender', 'indicators', 'ar', 'en']) &&
+             data.idNumber is string && data.idNumber.size() == 10 &&
+             data.gender in ['male', 'female'] &&
+             data.indicators is map &&
+             data.ar is map &&
+             data.en is map;
+    }
+
+    // --- Goal Rules ---
+    match /goals/{goalId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidGoal(incoming()) && isValidId(goalId);
+    }
+
+    function isValidGoal(data) {
+      return data.keys().hasAll(['target', 'remaining', 'id']) &&
+             data.target is int && data.target >= 0 &&
+             data.remaining is int && data.remaining >= 0 &&
+             data.id is string;
+    }
+  }
+}
