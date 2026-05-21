@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "start": "node dist/server.cjs",
-"build": "vite build && tsc server.ts --esModuleInterop --outDir dist --skipLibCheck --allowJs --noEmitOnError false", 
+    "start": "node dist/server.js",
+    "build": "vite build && tsc server.ts --target es2022 --moduleResolution node --esModuleInterop --outDir dist --skipLibCheck --allowJs --noEmitOnError false", 
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
